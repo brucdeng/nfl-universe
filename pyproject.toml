@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nfl-universe"
+version = "0.1.0"
+description = "NFL analytics with a tool-using agent, document retrieval, and ML models"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.10,<3",
+    "pydantic-settings>=2.7,<3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3,<10",
+    "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "api/app",
+    "agent/agent",
+    "rag/rag",
+    "ml/ml",
+    "ingest/ingest",
+    "shared/shared",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["api/tests", "agent/tests", "rag/tests", "ml/tests", "ingest/tests", "shared/tests", "evals/tests"]
+addopts = "--import-mode=importlib --strict-config --strict-markers"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+include = ["*.py", "*.pyi", "pyproject.toml"]
+src = ["api", "agent", "rag", "ml", "ingest", "shared"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

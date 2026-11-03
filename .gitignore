@@ -1,0 +1,47 @@
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python and tooling
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+build/
+dist/
+
+# Frontend
+node_modules/
+coverage/
+*.tsbuildinfo
+
+# Local datasets, trained models, and generated output
+/data/
+/artifacts/
+/outputs/
+*.parquet
+*.pkl
+*.pickle
+*.joblib
+*.onnx
+*.pt
+*.pth
+*.sql.gz
+.ipynb_checkpoints/
+
+# Local editor and OS state
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
