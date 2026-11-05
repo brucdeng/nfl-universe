@@ -73,6 +73,58 @@ Format: date, decision, options considered, why, trade-offs, revisit trigger. Ad
 - References: https://docs.astral.sh/uv/concepts/projects/config/ and
   https://docs.pydantic.dev/latest/concepts/pydantic_settings/
 
+## ADR-010: M0 API health checks and connection clients
+- Date: 2026-11-05
+- Decision: add FastAPI and Uvicorn for the gateway, SQLAlchemy 2.0 with Psycopg 3
+  binary distribution for Postgres, and redis-py for Redis. Add HTTPX2 as a dev
+  dependency for the installed Starlette TestClient and HTTP integration tests.
+  The resolved versions and dependency bounds live in `uv.lock` and `pyproject.toml`.
+- Options considered: synchronous clients in FastAPI's thread pool versus async
+  database/cache clients; a combined health endpoint versus separate liveness.
+- Why: a small synchronous health route is sufficient for setup. `/healthz` checks
+  a real query, pgvector availability, and Redis PING; `/livez` checks only the
+  process. Lifespan owns connection creation/cleanup. Missing required settings
+  fail startup, while unavailable dependencies produce HTTP 503 and can recover.
+- Trade-offs: checks run sequentially, with bounded connection, pool, statement,
+  and socket waits. Redis automatic retries are disabled. Revisit client strategy
+  as streaming and load tests are introduced.
+- Configuration errors and health responses avoid exposing connection details.
+  The gateway uses only its write-role URL; the agent keeps its own read-only URL.
+- Local limitation: Windows Application Control blocked the Psycopg native binary
+  on this development machine. Do not change OS protections; use the Linux API
+  container for runtime. Unit tests isolate service clients, while CI tests the
+  real Linux driver and connections.
+- References: https://fastapi.tiangolo.com/advanced/events/,
+  https://docs.sqlalchemy.org/en/20/dialects/postgresql.html,
+  https://redis.readthedocs.io/en/stable/retry.html
+
+## ADR-011: Local Compose bootstrap and M0 CI
+- Date: 2026-11-05
+- Decision: use pgvector 0.8.7 on Postgres 17, Redis 7.4, and Python 3.12 for the
+  initial Compose stack. Use health-based startup dependencies, loopback host
+  ports, named data volumes, and source mounts for API development. The API image
+  installs locked runtime dependencies and runs as a non-root user.
+- Options considered: Postgres superuser credentials for the API versus dedicated
+  roles; CI service containers versus testing the same Compose stack as local dev.
+- Why: separate `app_rw` and `agent_ro` roles establish the intended privilege
+  boundaries, and Compose-based CI exercises the actual image and startup wiring.
+- Bootstrap only provisions cluster roles and basic connection/schema usage
+  permissions on the initial data volume. `agent_ro` defaults to read-only
+  transactions and cannot create databases, roles, or public-schema objects.
+  M1 migrations will enable pgvector and add tables plus explicit allowlist grants.
+- Trade-offs: image tags pin the main versions but are not immutable digests;
+  initial development passwords are public local defaults, and changing an env
+  password does not update existing database roles. Production configuration is
+  a separate deployment task. Docker is required for full integration tests.
+- CI: Ruff and unit tests on Python 3.11/3.12; a separate Linux stack job builds
+  and checks the API, Postgres, and Redis. Use read-only workflow permissions,
+  SHA-pinned actions, uv 0.13.7, failure logs, and unconditional CI cleanup.
+- Revisit if: deployment requirements call for immutable image digests, managed
+  services, separate dependency groups, or a dedicated development override file.
+- References: https://github.com/pgvector/pgvector#docker,
+  https://docs.docker.com/compose/how-tos/startup-order/,
+  https://github.com/astral-sh/setup-uv
+
 ## Template
 ```
 ## ADR-00X: Title

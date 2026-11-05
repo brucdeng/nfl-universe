@@ -1,8 +1,8 @@
 # Repo structure
 
-This is the target layout. M0 steps 1-3 create package boundaries, settings, tests,
-and placeholder directories; application modules and infrastructure files shown
-below are added in their respective milestones.
+This is the target layout. M0 steps 1-5 create package boundaries, settings, a
+FastAPI health application, Compose/Docker configuration, and CI. The remaining
+application modules shown below are added in their respective milestones.
 
 ```
 nfl-universe/
