@@ -9,12 +9,18 @@ description = "NFL analytics with a tool-using agent, document retrieval, and ML
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.115,<1",
+    "psycopg[binary]>=3.2,<4",
     "pydantic>=2.10,<3",
     "pydantic-settings>=2.7,<3",
+    "redis>=5,<9",
+    "sqlalchemy>=2.0,<2.1",
+    "uvicorn>=0.34,<1",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.16,<3",
     "pytest>=8.3,<10",
     "ruff>=0.9,<1",
 ]
@@ -32,6 +38,7 @@ packages = [
 [tool.pytest.ini_options]
 testpaths = ["api/tests", "agent/tests", "rag/tests", "ml/tests", "ingest/tests", "shared/tests", "evals/tests"]
 addopts = "--import-mode=importlib --strict-config --strict-markers"
+markers = ["integration: requires the Compose Postgres and Redis services"]
 
 [tool.ruff]
 target-version = "py311"

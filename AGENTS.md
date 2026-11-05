@@ -23,7 +23,8 @@ See `docs/REPO_STRUCTURE.md`. Services: `web`, `api`, `agent`, `rag`, `ml`, `ing
 ## Commands
 Fill these in as they are created.
 - Install dependencies: `uv sync --locked` (or `python -m uv sync --locked`)
-- Start stack: `docker compose up` (TBD: Compose is not implemented yet)
+- Start stack: `docker compose up --build`
+- Check stack: `docker compose ps`, then `GET http://localhost:8000/healthz`
 - Tests: `uv run pytest`
 - Lint: `uv run ruff check .`
 - Format check: `uv run ruff format --check .`
