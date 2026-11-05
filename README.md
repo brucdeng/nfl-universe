@@ -6,7 +6,7 @@ and ML models over one completed season. See `docs/PROJECT_OVERVIEW.md` for scop
 ## Current status
 M0 steps 1-5 are implemented: repository scaffolding, Python tooling, shared
 settings, a Compose stack, FastAPI health endpoints, and a GitHub Actions workflow.
-Live container integration and the first hosted CI run still need verification.
+Live container integration is verified; the first hosted CI run remains pending.
 The season and initial metrics are the remaining M0 scope decisions. The frontend
 and agent/RAG/ML algorithms are placeholders.
 
@@ -93,6 +93,21 @@ Use dedicated test services, not a production database. The integration suite ch
 real connections, pgvector availability, bootstrap role properties, and health
 responses from both the app and the running API container.
 
+To run the full suite in a temporary Linux container (including on Windows where
+native database drivers are blocked), keep the stack running and use PowerShell:
+
+```powershell
+docker compose run --rm --no-deps --user root `
+  --volume "${PWD}:/workspace:ro" --workdir /workspace `
+  --env UV_PROJECT_ENVIRONMENT=/tmp/nfl-universe-tests `
+  --env UV_CACHE_DIR=/tmp/uv-cache --entrypoint sh api `
+  -c 'export TEST_DATABASE_URL="$DATABASE_URL"; export TEST_REDIS_URL="$REDIS_URL"; export TEST_API_URL=http://api:8000; uv run --locked pytest -p no:cacheprovider'
+```
+
+The test container installs development dependencies into its temporary filesystem,
+mounts the repository read-only, and removes itself on exit. The running API stays
+under its non-root user.
+
 `.github/workflows/ci.yml` runs on pushes and pull requests, with manual dispatch
 available. It runs Ruff and unit tests on Python 3.11/3.12, then builds and starts
 the Compose stack in a separate job for integration checks. It prints container
@@ -100,10 +115,12 @@ logs on failure and removes the disposable CI stack afterward. No repository
 secrets are needed for this M0 workflow. Frontend checks and eval gates will be
 added when those components exist.
 
-Verification on 2026-11-05: unit tests, Ruff, Compose configuration validation,
-and workflow lint passed. Docker Engine/Desktop was unavailable locally, so the
-live stack tests remain unverified here. Windows Application Control also blocked
-the native psycopg binary; the intended API runtime is the Linux container.
+Verification on 2026-11-05: Docker Desktop successfully built and started all three
+services. The full test suite, including real Postgres/Redis and container HTTP
+checks, passed in Linux. Host HTTP checks passed too. See `docs/RESULTS_LOG.md`
+for the tested revision and results. Ruff, Compose configuration validation, and
+workflow lint also passed in the setup checks. Windows Application Control blocked
+the native psycopg binary; the Linux container runtime works successfully.
 
 ## How to use
 1. Read `AGENTS.md` for collaboration rules (guided mode by default).

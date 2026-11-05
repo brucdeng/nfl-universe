@@ -6,11 +6,12 @@ Stretch each milestone rather than cutting evals if time is short.
 - [x] Monorepo with layout from `REPO_STRUCTURE.md` (package and directory scaffolding)
 - [x] `.gitignore` (with `.env`), `.env.example`
 - [x] Python tooling: root project, uv lockfile, pytest, Ruff, shared settings
-- [x] Docker Compose: Postgres with pgvector, Redis, API (live verification pending)
+- [x] Docker Compose: Postgres with pgvector, Redis, API (live verification passed)
 - [x] FastAPI skeleton with `/healthz` and `/livez`
 - [x] GitHub Actions: ruff + pytest on every push (first hosted run pending)
 - [ ] Pick the season and list 10 to 15 metrics
-- [ ] Verify the full local stack and the first green GitHub Actions run
+- [x] Verify the full local stack, including integration tests
+- [ ] Verify the first green GitHub Actions run
 Done when: `docker compose up` starts everything and CI is green.
 
 ## M1: Data and schema (week 2)
